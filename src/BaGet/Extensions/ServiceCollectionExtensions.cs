@@ -82,6 +82,9 @@ namespace BaGet.Extensions
                     case DatabaseType.SqlServer:
                         return provider.GetRequiredService<SqlServerContext>();
 
+                    case DatabaseType.MySql:
+                        return provider.GetRequiredService<MySqlContext>();
+
                     default:
                         throw new InvalidOperationException(
                             $"Unsupported database provider: {databaseOptions.Value.Type}");
@@ -100,6 +103,13 @@ namespace BaGet.Extensions
                 var databaseOptions = provider.GetRequiredService<IOptionsSnapshot<DatabaseOptions>>();
 
                 options.UseSqlServer(databaseOptions.Value.ConnectionString);
+            });
+
+            services.AddDbContext<MySqlContext>((provider, options) =>
+            {
+                var databaseOptions = provider.GetRequiredService<IOptionsSnapshot<DatabaseOptions>>();
+
+                options.UseMySql(databaseOptions.Value.ConnectionString);
             });
 
             return services;
@@ -128,6 +138,7 @@ namespace BaGet.Extensions
         {
             services
                 .AddMvc()
+                .AddApplicationPart(typeof(BaGet.Controllers.PackageController).Assembly)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddCors();
